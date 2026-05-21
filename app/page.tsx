@@ -1,147 +1,224 @@
 import Link from "next/link";
+import { Reveal } from "@/components/Reveal";
 
 export default function Home() {
   return (
     <>
-      {/* HERO */}
-      <section className="relative bg-glow">
-        <div className="absolute inset-0 bg-grid opacity-50" />
-        <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-32 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand/10 border border-brand/30 text-brand text-xs font-medium mb-8">
-            <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
-            MVP — закрытое бета-тестирование
-          </div>
+      {/* HERO — asymmetric, no center mass */}
+      <section className="max-w-6xl mx-auto px-6 pt-28 pb-32">
+        <Reveal>
+          <div className="eyebrow mb-6">v0.3 · ранний доступ</div>
+        </Reveal>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 max-w-4xl mx-auto">
-            Приём платежей через
+        <Reveal delay={80}>
+          <h1 className="h-display text-[60px] md:text-[88px] max-w-4xl">
+            Приём платежей.
             <br />
-            <span className="text-brand">сеть партнёров</span>
+            <span className="text-muted">Распределённо по партнёрам.</span>
           </h1>
+        </Reveal>
 
-          <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-            Процессинговая площадка с автоматическим распределением входящих платежей
-            по сети ИП и криптовалютным страховым депозитом.
+        <Reveal delay={180}>
+          <p className="mt-10 max-w-xl text-[16px] text-muted leading-relaxed">
+            Инфраструктура агентского эквайринга: вы вносите криптообеспечение,
+            мы поднимаем лимит и автоматически направляем трафик через ваши ИП,
+            не превышая дневных и месячных порогов.
           </p>
+        </Reveal>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Reveal delay={280}>
+          <div className="mt-12 flex items-center gap-4">
             <Link
               href="/signup"
-              className="px-6 py-3 bg-brand text-gray-950 rounded-lg font-semibold hover:bg-brand/90 transition"
+              className="px-5 py-2.5 text-[13px] font-medium bg-fg text-bg hover:bg-muted transition-colors"
             >
-              Стать партнёром
+              Получить доступ
             </Link>
-            <a
-              href="#how"
-              className="px-6 py-3 border border-gray-700 rounded-lg font-medium hover:border-brand hover:text-brand transition"
+            <Link
+              href="#product"
+              className="link px-2 text-[13px] text-muted hover:text-fg"
             >
-              Как это работает
-            </a>
+              Посмотреть продукт
+            </Link>
           </div>
+        </Reveal>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-gray-500 uppercase tracking-wider">
-            <span>СБП</span><span>·</span>
-            <span>P2P-карты</span><span>·</span>
-            <span>USDT TRC-20</span><span>·</span>
-            <span>API + Webhooks</span>
+        {/* hero stats — discreet */}
+        <Reveal delay={400}>
+          <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-y-8 max-w-3xl border-t border-border/60 pt-10">
+            <Stat n="< 200ms" l="response p99" />
+            <Stat n="99.95%" l="SLA процессинга" />
+            <Stat n="7" l="методов оплаты" />
+            <Stat n="T+1" l="расчёт по умолчанию" />
           </div>
+        </Reveal>
+      </section>
+
+      {/* MARQUEE — "supported by" feel */}
+      <section className="border-y border-border/60 py-5 overflow-hidden">
+        <div className="flex marquee whitespace-nowrap text-[12px] text-faint">
+          {Array.from({ length: 2 }).map((_, k) => (
+            <div key={k} className="flex items-center gap-12 px-6 shrink-0">
+              {["СБП", "Visa", "Mastercard", "МИР", "USDT TRC-20", "USDT ERC-20", "TON", "Webhooks", "REST API", "gRPC"].map((s) => (
+                <span key={`${k}-${s}`} className="tracking-wider uppercase">{s}</span>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section className="max-w-6xl mx-auto px-6 py-24" id="how">
-        <div className="text-center mb-16">
-          <div className="text-brand text-sm font-semibold uppercase tracking-wider mb-3">Возможности</div>
-          <h2 className="text-3xl md:text-4xl font-bold">Всё для платёжной автоматизации</h2>
-        </div>
+      {/* PRODUCT — list, not cards */}
+      <section id="product" className="max-w-6xl mx-auto px-6 py-32">
+        <Reveal>
+          <div className="eyebrow mb-4">Продукт</div>
+          <h2 className="h-section text-[40px] md:text-[56px] max-w-3xl">
+            Каждый платёж проходит через
+            <br />
+            подходящий по лимиту реквизит.
+          </h2>
+        </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Feature
-            icon="🎯"
-            title="Smart Routing"
-            desc="Автоматическое распределение трафика по партнёрам с учётом лимитов, оборотов и здоровья реквизитов."
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-2 border-t border-border/60">
+          <ProductRow
+            n="01"
+            title="Smart router"
+            desc="Подбор реквизита по дневному и месячному лимиту, скользящему окну, здоровью карты, географии плательщика. С резервированием оборота при создании транзакции."
           />
-          <Feature
-            icon="🪙"
-            title="Crypto Insurance"
-            desc="Страховой депозит в USDT — обеспечение для активации лимита партнёра без отдельных переводов."
+          <ProductRow
+            n="02"
+            title="Криптообеспечение"
+            desc="HD-кошельки на партнёра, watchers по блокчейну, ликвидация при margin call. Лимит партнёра = коэффициент × депозит."
           />
-          <Feature
-            icon="🛡️"
+          <ProductRow
+            n="03"
             title="Anti-overflow"
-            desc="Жёсткие лимиты по дню/месяцу с резервированием оборота. Никаких превышений и блокировок счетов."
+            desc="Жёсткий cap по обороту через PG advisory locks. Никаких превышений УСН 60M ₽/год и блокировок счетов."
           />
-          <Feature
-            icon="⚡"
-            title="Webhooks + SDK"
-            desc="REST API, HMAC-подписи, JS/PHP/Python SDK. Интеграция за час, не за неделю."
+          <ProductRow
+            n="04"
+            title="Webhooks с HMAC"
+            desc="Идемпотентные доставки, экспоненциальный retry, dead-letter queue. JS/Python/PHP SDK."
           />
-          <Feature
-            icon="📊"
-            title="Real-time analytics"
-            desc="Live-дашборд: GMV, success rate, конверсия. Экспорт в CSV/Excel."
-          />
-          <Feature
-            icon="🔐"
-            title="2FA + аудит"
-            desc="TOTP, журнал всех действий, гранулярные API-токены под каждую интеграцию."
+          <ProductRow
+            n="05"
+            title="Audit + 2FA"
+            desc="Каждое действие в неизменяемом логе. TOTP, API-токены с гранулярными правами и автоматической ротацией."
           />
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="bg-gray-900/30 border-y border-gray-800">
-        <div className="max-w-6xl mx-auto px-6 py-24">
-          <div className="text-center mb-16">
-            <div className="text-brand text-sm font-semibold uppercase tracking-wider mb-3">Процесс</div>
-            <h2 className="text-3xl md:text-4xl font-bold">5 шагов до первой выплаты</h2>
-          </div>
-          <ol className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <StepBig n={1} title="Регистрация" desc="Email + пароль, активация магического токена" />
-            <StepBig n={2} title="KYC" desc="Загрузка документов ИП, валидация ЕГРИП" />
-            <StepBig n={3} title="Депозит" desc="Внесение USDT на персональный кошелёк партнёра" />
-            <StepBig n={4} title="Лимит" desc="Активация торгового лимита, подключение реквизитов" />
-            <StepBig n={5} title="Поток" desc="Приём платежей, авто-выплаты в USDT по расписанию" />
-          </ol>
+      {/* HOW IT WORKS — horizontal steps */}
+      <section id="how" className="max-w-6xl mx-auto px-6 py-32 border-t border-border/60">
+        <Reveal>
+          <div className="eyebrow mb-4">Процесс</div>
+          <h2 className="h-section text-[40px] md:text-[56px] max-w-3xl">
+            От регистрации до выплаты —
+            <br />
+            <span className="text-muted">5 шагов.</span>
+          </h2>
+        </Reveal>
+
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-5 gap-px bg-border/60 border border-border/60">
+          <Step n="01" t="Регистрация" d="Email, пароль, 2FA" />
+          <Step n="02" t="KYC ИП" d="ОГРНИП, паспорт, выписка" />
+          <Step n="03" t="Депозит USDT" d="Лимит = K × депозит" />
+          <Step n="04" t="Подключение" d="Реквизиты, API-токен" />
+          <Step n="05" t="Поток" d="Выплаты в USDT по графику" />
         </div>
+      </section>
+
+      {/* PRICING — minimal */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-32 border-t border-border/60">
+        <Reveal>
+          <div className="eyebrow mb-4">Тарифы</div>
+          <h2 className="h-section text-[40px] md:text-[56px] max-w-3xl">
+            Без абонентки.
+            <br />
+            <span className="text-muted">Процент с оборота.</span>
+          </h2>
+        </Reveal>
+
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 border border-border/60">
+          <Price tier="Starter" pct="2.4%" d="до 5M ₽ оборота / месяц" />
+          <Price tier="Growth" pct="1.8%" d="5M – 30M ₽" emphasis />
+          <Price tier="Scale" pct="индив." d="от 30M ₽" />
+        </div>
+
+        <Reveal delay={200}>
+          <div className="mt-10 max-w-2xl text-[13px] text-muted leading-relaxed">
+            Reserve fund 5% удерживается 180 дней. Hold по умолчанию T+1, для новых партнёров — T+3.
+            Депозит USDT возвращается через 72 часа cool-down после запроса.
+          </div>
+        </Reveal>
       </section>
 
       {/* CTA */}
-      <section className="max-w-3xl mx-auto px-6 py-32 text-center">
-        <h2 className="text-3xl md:text-5xl font-bold mb-6">
-          Готов запустить свой <span className="text-brand">первый поток</span>?
-        </h2>
-        <p className="text-gray-400 mb-10 text-lg">
-          Регистрация занимает минуту. Депозит вносится только после прохождения KYC.
-        </p>
-        <Link
-          href="/signup"
-          className="inline-block px-8 py-4 bg-brand text-gray-950 rounded-lg font-bold text-lg hover:bg-brand/90 transition"
-        >
-          Создать партнёрский аккаунт →
-        </Link>
+      <section className="max-w-6xl mx-auto px-6 py-32 border-t border-border/60">
+        <Reveal>
+          <h2 className="h-display text-[48px] md:text-[72px] max-w-3xl">
+            Готовы запустить
+            <br />
+            <span className="text-muted">первый поток?</span>
+          </h2>
+        </Reveal>
+
+        <Reveal delay={150}>
+          <div className="mt-10 flex items-center gap-6">
+            <Link
+              href="/signup"
+              className="px-5 py-2.5 text-[13px] font-medium bg-fg text-bg hover:bg-muted transition-colors"
+            >
+              Создать аккаунт
+            </Link>
+            <Link href="mailto:hi@processing.local" className="link text-[13px] text-muted hover:text-fg">
+              Связаться с командой
+            </Link>
+          </div>
+        </Reveal>
       </section>
     </>
   );
 }
 
-function Feature({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+function Stat({ n, l }: { n: string; l: string }) {
   return (
-    <div className="p-6 rounded-2xl bg-gray-900/50 border border-gray-800 hover:border-brand/50 hover:bg-gray-900/80 transition group">
-      <div className="text-3xl mb-4">{icon}</div>
-      <h3 className="font-semibold text-lg mb-2 group-hover:text-brand transition">{title}</h3>
-      <p className="text-sm text-gray-400 leading-relaxed">{desc}</p>
+    <div>
+      <div className="text-[24px] font-medium tracking-tight">{n}</div>
+      <div className="text-[12px] text-faint mt-1 uppercase tracking-wider">{l}</div>
     </div>
   );
 }
 
-function StepBig({ n, title, desc }: { n: number; title: string; desc: string }) {
+function ProductRow({ n, title, desc }: { n: string; title: string; desc: string }) {
   return (
-    <li className="text-center">
-      <div className="w-12 h-12 rounded-xl bg-brand/10 border border-brand/30 grid place-items-center text-brand font-bold mx-auto mb-4">
-        {n}
-      </div>
-      <h4 className="font-semibold mb-2">{title}</h4>
-      <p className="text-sm text-gray-400">{desc}</p>
-    </li>
+    <>
+      <Reveal as="div" className="md:col-span-1 pt-8 text-[12px] text-faint tracking-wider">{n}</Reveal>
+      <Reveal as="div" className="md:col-span-3 pt-8 text-[18px] font-medium tracking-tight border-t-0 md:border-t border-border/60">
+        {title}
+      </Reveal>
+      <Reveal as="div" delay={50} className="md:col-span-8 pt-8 pb-8 text-[15px] text-muted leading-relaxed border-t border-border/60">
+        {desc}
+      </Reveal>
+    </>
+  );
+}
+
+function Step({ n, t, d }: { n: string; t: string; d: string }) {
+  return (
+    <div className="bg-bg p-6 md:p-7 hover:bg-surface transition-colors">
+      <div className="text-[11px] text-faint tracking-wider">{n}</div>
+      <div className="mt-8 text-[15px] font-medium">{t}</div>
+      <div className="mt-1 text-[13px] text-muted">{d}</div>
+    </div>
+  );
+}
+
+function Price({ tier, pct, d, emphasis }: { tier: string; pct: string; d: string; emphasis?: boolean }) {
+  return (
+    <div className={`p-8 ${emphasis ? "bg-surface" : ""} border-r border-border/60 last:border-r-0`}>
+      <div className="text-[12px] text-faint uppercase tracking-wider">{tier}</div>
+      <div className="mt-8 text-[40px] font-medium tracking-tight">{pct}</div>
+      <div className="mt-2 text-[13px] text-muted">{d}</div>
+    </div>
   );
 }

@@ -3,13 +3,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -21,40 +20,46 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password, display_name: displayName || undefined })
+        body: JSON.stringify({ email, password, display_name: name || undefined })
       });
       const j = await res.json();
       if (!res.ok) {
         if (j.error === "email_taken") throw new Error("Этот email уже зарегистрирован");
-        throw new Error("Ошибка регистрации");
+        if (j.error === "invalid_input") throw new Error("Проверьте корректность email и пароля (минимум 8 символов)");
+        throw new Error("Не удалось создать аккаунт");
       }
       router.push("/dashboard");
       router.refresh();
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-6">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Регистрация партнёра</h1>
-          <p className="text-sm text-gray-400 mt-1">уже есть аккаунт? <Link href="/login" className="text-brand hover:underline">Войти</Link></p>
+    <main className="min-h-[calc(100vh-3rem)] grid place-items-center px-6">
+      <div className="w-full max-w-[320px]">
+        <div className="eyebrow mb-8">Регистрация партнёра</div>
+        <form onSubmit={submit} className="space-y-6">
+          <Input label="Имя или название" value={name} onChange={(e) => setName(e.target.value)} placeholder="Иван И." />
+          <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          <Input label="Пароль" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" hint="минимум 8 символов" />
+          {error && <div className="text-[12px] text-red-400/80">{error}</div>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 text-[13px] font-medium bg-fg text-bg hover:bg-muted transition-colors disabled:opacity-40"
+          >
+            {loading ? "Создаём..." : "Создать аккаунт →"}
+          </button>
+        </form>
+        <div className="mt-8 text-[12px] text-faint leading-relaxed">
+          Есть аккаунт? <Link href="/login" className="link text-muted hover:text-fg">Войти</Link>
+          <br/><br/>
+          Регистрируясь, вы соглашаетесь с условиями использования.
+          KYC начнётся после первого входа в кабинет.
         </div>
-        <Input label="Имя или название" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Иван И." />
-        <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-        <Input label="Пароль" type="password" required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" placeholder="минимум 8 символов" />
-        {error && <div className="text-sm text-red-400 bg-red-950/30 border border-red-900 rounded-lg px-3 py-2">{error}</div>}
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Создаём..." : "Создать аккаунт"}
-        </Button>
-        <p className="text-xs text-gray-500 text-center pt-2">
-          Регистрируясь, вы соглашаетесь с условиями использования
-        </p>
-      </form>
+      </div>
     </main>
   );
 }

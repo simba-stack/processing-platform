@@ -10,7 +10,7 @@ export function LogoutButton({ className = "" }: { className?: string }) {
   }
   return (
     <button onClick={logout} disabled={loading} className={className}>
-      {loading ? "Выходим..." : "Выйти из аккаунта"}
+      {loading ? "Выходим..." : "Выйти из аккаунта →"}
     </button>
   );
 }

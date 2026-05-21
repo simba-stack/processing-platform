@@ -1,6 +1,6 @@
 {
   "name": "processing-platform",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,7 +15,6 @@
     "react-dom": "^18.3.1",
     "pg": "^8.13.1",
     "bcryptjs": "^2.4.3",
-    "jose": "^5.9.6",
     "zod": "^3.23.8"
   },
   "devDependencies": {

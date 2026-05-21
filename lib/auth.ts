@@ -1,15 +1,11 @@
 import { cookies, headers } from "next/headers";
-import { SignJWT, jwtVerify } from "jose";
+import { redirect } from "next/navigation";
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { query } from "./db";
 
 const SESSION_COOKIE = "pp_session";
 const SESSION_TTL_DAYS = 30;
-
-const SECRET = new TextEncoder().encode(
-  process.env.SESSION_SECRET || "dev-only-secret-change-in-prod-please-32+chars"
-);
 
 export type User = {
   id: string;
@@ -47,13 +43,7 @@ export async function createSession(userId: string, ua?: string, ip?: string): P
     [userId, tokenHash, ua ?? null, ip ?? null, expires]
   );
 
-  const jwt = await new SignJWT({ uid: userId, t: tokenHash.slice(0, 16) })
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime(`${SESSION_TTL_DAYS}d`)
-    .sign(SECRET);
-
-  cookies().set(SESSION_COOKIE, `${raw}.${jwt}`, {
+  cookies().set(SESSION_COOKIE, raw, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -65,26 +55,16 @@ export async function createSession(userId: string, ua?: string, ip?: string): P
 }
 
 export async function destroySession(): Promise<void> {
-  const cookie = cookies().get(SESSION_COOKIE)?.value;
-  if (cookie) {
-    const [raw] = cookie.split(".");
+  const raw = cookies().get(SESSION_COOKIE)?.value;
+  if (raw) {
     await query(`DELETE FROM sessions WHERE token_hash = $1`, [hashToken(raw)]);
   }
   cookies().delete(SESSION_COOKIE);
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-  const cookie = cookies().get(SESSION_COOKIE)?.value;
-  if (!cookie) return null;
-
-  const [raw, jwt] = cookie.split(".");
-  if (!raw || !jwt) return null;
-
-  try {
-    await jwtVerify(jwt, SECRET);
-  } catch {
-    return null;
-  }
+  const raw = cookies().get(SESSION_COOKIE)?.value;
+  if (!raw) return null;
 
   const tokenHash = hashToken(raw);
   const rows = await query<User>(
@@ -98,14 +78,15 @@ export async function getCurrentUser(): Promise<User | null> {
 
   if (!rows.length) return null;
 
-  await query(`UPDATE sessions SET last_seen_at = now() WHERE token_hash = $1`, [tokenHash]);
+  // fire-and-forget last_seen update (don't block render)
+  query(`UPDATE sessions SET last_seen_at = now() WHERE token_hash = $1`, [tokenHash]).catch(() => {});
 
   return rows[0];
 }
 
 export async function requireUser(): Promise<User> {
   const user = await getCurrentUser();
-  if (!user) throw new Error("UNAUTHORIZED");
+  if (!user) redirect("/login");
   return user;
 }
 
@@ -120,8 +101,12 @@ export function getClientIp(): string | undefined {
 }
 
 export async function logAudit(userId: string | null, action: string, metadata?: any) {
-  await query(
-    `INSERT INTO audit_log (user_id, action, metadata, ip) VALUES ($1, $2, $3, $4)`,
-    [userId, action, metadata ? JSON.stringify(metadata) : null, getClientIp() ?? null]
-  );
+  try {
+    await query(
+      `INSERT INTO audit_log (user_id, action, metadata, ip) VALUES ($1, $2, $3, $4)`,
+      [userId, action, metadata ? JSON.stringify(metadata) : null, getClientIp() ?? null]
+    );
+  } catch (e) {
+    console.error("audit log failed:", e);
+  }
 }

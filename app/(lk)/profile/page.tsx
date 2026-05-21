@@ -5,25 +5,29 @@ export const dynamic = "force-dynamic";
 export default async function ProfilePage() {
   const user = await requireUser();
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-3xl font-bold mb-8">Профиль</h1>
-      <div className="space-y-4">
-        <Field label="ID" value={user.id} mono />
-        <Field label="Email" value={user.email} />
-        <Field label="Имя" value={user.display_name ?? "—"} />
-        <Field label="Роль" value={user.role} />
-        <Field label="Статус" value={user.status} />
-        <Field label="Зарегистрирован" value={new Date(user.created_at).toLocaleString("ru-RU")} />
+    <div className="space-y-12 max-w-2xl">
+      <header>
+        <div className="eyebrow mb-3">Профиль</div>
+        <h1 className="h-section text-[36px]">{user.display_name || user.email.split("@")[0]}</h1>
+      </header>
+
+      <div className="border border-border/60 divide-y divide-border/60">
+        <Row k="ID" v={user.id} mono />
+        <Row k="Email" v={user.email} />
+        <Row k="Имя" v={user.display_name ?? "—"} />
+        <Row k="Роль" v={user.role} />
+        <Row k="Статус" v={user.status} />
+        <Row k="Зарегистрирован" v={new Date(user.created_at).toLocaleString("ru-RU")} />
       </div>
     </div>
   );
 }
 
-function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+function Row({ k, v, mono }: { k: string; v: string; mono?: boolean }) {
   return (
-    <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-      <div className="text-xs uppercase tracking-wider text-gray-500 mb-1">{label}</div>
-      <div className={mono ? "font-mono text-sm" : ""}>{value}</div>
+    <div className="px-5 py-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className="text-[12px] text-faint uppercase tracking-wider">{k}</div>
+      <div className={`md:col-span-2 text-[14px] ${mono ? "font-mono text-[12px] text-muted" : ""}`}>{v}</div>
     </div>
   );
 }

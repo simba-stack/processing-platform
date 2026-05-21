@@ -13,36 +13,46 @@ export default async function SecurityPage() {
   );
 
   return (
-    <div className="max-w-3xl">
-      <h1 className="text-3xl font-bold mb-8">Безопасность</h1>
+    <div className="space-y-16">
+      <header>
+        <div className="eyebrow mb-3">Безопасность</div>
+        <h1 className="h-section text-[36px]">Сессии и доступ</h1>
+      </header>
 
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-3">Активные сессии</h2>
-        <div className="rounded-xl bg-gray-900/50 border border-gray-800 divide-y divide-gray-800">
-          {sessions.length === 0 && <div className="p-5 text-sm text-gray-500">Сессий нет</div>}
+      <section>
+        <div className="flex items-baseline justify-between mb-4">
+          <h2 className="text-[15px] font-medium">Активные сессии</h2>
+          <span className="text-[12px] text-faint">{sessions.length}</span>
+        </div>
+        <div className="border border-border/60 divide-y divide-border/60">
+          {sessions.length === 0 && (
+            <div className="px-5 py-6 text-[13px] text-muted">Сессий нет</div>
+          )}
           {sessions.map((s) => (
-            <div key={s.id} className="p-4 text-sm flex justify-between gap-4">
-              <div>
-                <div className="font-medium truncate max-w-md">{s.user_agent || "—"}</div>
-                <div className="text-xs text-gray-500 mt-1">IP: {s.ip || "—"} · {new Date(s.created_at).toLocaleString("ru-RU")}</div>
+            <div key={s.id} className="px-5 py-4 flex items-start justify-between gap-6">
+              <div className="min-w-0">
+                <div className="text-[13px] truncate">{s.user_agent || "—"}</div>
+                <div className="text-[11px] text-faint mt-1 font-mono">
+                  {s.ip || "—"} · {new Date(s.created_at).toLocaleString("ru-RU")}
+                </div>
               </div>
-              <div className="text-xs text-gray-500 whitespace-nowrap">
-                активна {new Date(s.last_seen_at).toLocaleTimeString("ru-RU")}
+              <div className="text-[11px] text-faint whitespace-nowrap">
+                активна {new Date(s.last_seen_at).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-3">API-токены</h2>
-        <div className="rounded-xl bg-gray-900/50 border border-gray-800 p-5 text-sm text-gray-500">
-          Управление API-токенами появится в следующем релизе.
+      <section>
+        <h2 className="text-[15px] font-medium mb-4">API-токены</h2>
+        <div className="border border-border/60 px-5 py-6 text-[13px] text-muted">
+          Управление API-токенами появится в v0.4.
         </div>
       </section>
 
-      <section>
-        <LogoutButton className="text-red-400 hover:text-red-300 text-sm transition" />
+      <section className="pt-8 border-t border-border/60">
+        <LogoutButton className="text-[13px] text-muted hover:text-red-400/90 transition-colors" />
       </section>
     </div>
   );

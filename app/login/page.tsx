@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,30 +24,35 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
       const j = await res.json();
-      if (!res.ok) throw new Error(j.error || "error");
+      if (!res.ok) throw new Error(j.error);
       router.push(from);
       router.refresh();
     } catch (err: any) {
-      setError(err.message === "invalid_credentials" ? "Неверный email или пароль" : "Ошибка входа");
-    } finally {
+      setError(err.message === "invalid_credentials" ? "Неверный email или пароль" : "Не удалось войти");
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-6">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Вход в кабинет</h1>
-          <p className="text-sm text-gray-400 mt-1">или <Link href="/signup" className="text-brand hover:underline">создать аккаунт</Link></p>
+    <main className="min-h-[calc(100vh-3rem)] grid place-items-center px-6">
+      <div className="w-full max-w-[320px]">
+        <div className="eyebrow mb-8">Вход</div>
+        <form onSubmit={submit} className="space-y-6">
+          <Input label="Email" type="email" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+          <Input label="Пароль" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
+          {error && <div className="text-[12px] text-red-400/80">{error}</div>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 text-[13px] font-medium bg-fg text-bg hover:bg-muted transition-colors disabled:opacity-40"
+          >
+            {loading ? "Входим..." : "Войти →"}
+          </button>
+        </form>
+        <div className="mt-8 text-[12px] text-faint">
+          Нет аккаунта? <Link href="/signup" className="link text-muted hover:text-fg">Создать</Link>
         </div>
-        <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-        <Input label="Пароль" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
-        {error && <div className="text-sm text-red-400 bg-red-950/30 border border-red-900 rounded-lg px-3 py-2">{error}</div>}
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Входим..." : "Войти"}
-        </Button>
-      </form>
+      </div>
     </main>
   );
 }
